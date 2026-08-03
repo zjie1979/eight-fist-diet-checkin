@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#27675f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="8拳减肥法">
+  <title>8拳减肥法</title>
+  <link rel="manifest" href="./manifest.webmanifest?v=20260803t1">
+  <link rel="apple-touch-icon" href="./icon-180.png">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css?v=20260803t1">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p>每日固定额度</p>
+        <h1>8拳减肥法</h1>
+        <span>低热量 1拳 · 蛋白质 3拳 · 碳水 3拳 · 水果 1拳</span>
+      </div>
+      <button class="icon-button" id="resetTodayBtn" type="button" aria-label="重置今天">↺</button>
+    </header>
+
+    <section class="view is-active" id="viewToday" aria-labelledby="todayTitle">
+      <div class="section-title">
+        <div>
+          <span>首页</span>
+          <h2 id="todayTitle">今日打卡</h2>
+        </div>
+        <strong id="todayDate">--</strong>
+      </div>
+
+      <section class="summary-card">
+        <div class="quota-row">
+          <div>
+            <span>今日目标</span>
+            <strong>8 拳</strong>
+          </div>
+          <div>
+            <span>已记录</span>
+            <strong id="usedText">0 拳</strong>
+          </div>
+          <div>
+            <span>剩余</span>
+            <strong id="remainText">8 拳</strong>
+          </div>
+        </div>
+        <div class="progress-track" aria-label="今日总进度">
+          <div id="progressBar"></div>
+        </div>
+        <p class="status-text" id="statusText"></p>
+      </section>
+
+      <section class="category-grid" id="categoryGrid" aria-label="今日分类进度"></section>
+
+      <section class="entry-panel" aria-labelledby="entryTitle">
+        <div class="panel-title">
+          <h3 id="entryTitle">记录一拳</h3>
+          <span id="draftHint">低热量 · 1 拳</span>
+        </div>
+        <label class="field-block">
+          <span>食物名称</span>
+          <input id="foodNameInput" type="text" autocomplete="off" placeholder="例如：黄瓜、鸡胸、米饭、苹果">
+        </label>
+        <div class="segment-row category-picker" id="categoryButtons" aria-label="选择类别"></div>
+        <div class="amount-row" id="amountButtons" aria-label="选择拳头数量"></div>
+        <label class="custom-amount">
+          <span>自定义</span>
+          <input id="customAmount" type="number" min="0.1" max="8" step="0.1" inputmode="decimal" aria-label="自定义拳头数量">
+          <em>拳</em>
+        </label>
+        <button class="primary-button" id="addEntryBtn" type="button">加入今天</button>
+      </section>
+
+      <section class="entry-list-panel" aria-labelledby="entriesTitle">
+        <div class="panel-title">
+          <h3 id="entriesTitle">今天记录</h3>
+          <span id="entryCountText">0 条</span>
+        </div>
+        <div class="entry-list" id="entryList"></div>
+      </section>
+
+      <div class="today-actions">
+        <button class="primary-button" id="completeTodayBtn" type="button">完成今天</button>
+      </div>
+    </section>
+
+    <section class="view" id="viewRules" aria-labelledby="rulesTitle">
+      <div class="section-title">
+        <div>
+          <span>第二页</span>
+          <h2 id="rulesTitle">8拳规则</h2>
+        </div>
+      </div>
+
+      <section class="rule-card">
+        <h3>每天固定 8 拳</h3>
+        <div class="rule-list" id="ruleList"></div>
+      </section>
+
+      <section class="rule-card">
+        <h3>怎么理解一拳</h3>
+        <p class="source-note">一拳是一个方便打卡的粗略份量，不是精确称重。低热量蔬菜可以偏宽松；坚果、甜点、油炸零食不要按蔬菜算。</p>
+      </section>
+    </section>
+
+    <section class="view" id="viewRecords" aria-labelledby="recordsTitle">
+      <div class="section-title">
+        <div>
+          <span>第三页</span>
+          <h2 id="recordsTitle">记录统计</h2>
+        </div>
+      </div>
+      <section class="stats-grid" id="statsGrid"></section>
+      <section class="history-panel">
+        <div class="panel-title">
+          <h3>最近记录</h3>
+          <span id="historyCountText">0 天</span>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </section>
+    </section>
+  </main>
+
+  <nav class="bottom-tabs" aria-label="主导航">
+    <button class="tab-button is-active" type="button" data-tab="today">今日</button>
+    <button class="tab-button" type="button" data-tab="rules">规则</button>
+    <button class="tab-button" type="button" data-tab="records">记录</button>
+  </nav>
+
+  <script src="./app.js?v=20260803t1"></script>
+</body>
+</html>
