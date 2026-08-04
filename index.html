@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="8拳减肥法">
   <title>8拳减肥法</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=20260804t2">
+  <link rel="manifest" href="./manifest.webmanifest?v=20260804t9">
   <link rel="apple-touch-icon" href="./icon-180.png">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=20260804t2">
+  <link rel="stylesheet" href="./styles.css?v=20260804t9">
 </head>
 <body>
   <main class="app-shell">
@@ -54,25 +54,12 @@
         <p class="status-text" id="statusText"></p>
       </section>
 
-      <section class="category-grid" id="categoryGrid" aria-label="今日分类进度"></section>
-
-      <section class="entry-panel" aria-labelledby="entryTitle">
+      <section class="balance-panel" aria-labelledby="balanceTitle">
         <div class="panel-title">
-          <h3 id="entryTitle">记录一拳</h3>
-          <span id="draftHint">低热量 · 1 拳</span>
+          <h3 id="balanceTitle">分类余量</h3>
+          <span>一眼看今天还能吃什么</span>
         </div>
-        <label class="field-block">
-          <span>食物名称</span>
-          <input id="foodNameInput" type="text" autocomplete="off" placeholder="例如：黄瓜、鸡胸、米饭、苹果">
-        </label>
-        <div class="segment-row category-picker" id="categoryButtons" aria-label="选择类别"></div>
-        <div class="amount-row" id="amountButtons" aria-label="选择拳头数量"></div>
-        <label class="custom-amount">
-          <span>自定义</span>
-          <input id="customAmount" type="number" min="0.1" max="8" step="0.1" inputmode="decimal" aria-label="自定义拳头数量">
-          <em>拳</em>
-        </label>
-        <button class="primary-button" id="addEntryBtn" type="button">加入今天</button>
+        <div class="category-grid" id="categoryGrid" aria-label="今日分类进度"></div>
       </section>
 
       <section class="entry-list-panel" aria-labelledby="entriesTitle">
@@ -84,6 +71,7 @@
       </section>
 
       <div class="today-actions">
+        <button class="primary-button" id="openEntryBtn" type="button">+ 记录食物</button>
         <button class="primary-button" id="completeTodayBtn" type="button">完成今天</button>
       </div>
     </section>
@@ -125,12 +113,35 @@
     </section>
   </main>
 
+  <div class="sheet-backdrop" id="entrySheet" hidden>
+    <section class="entry-sheet" aria-labelledby="entryTitle" role="dialog" aria-modal="true">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="panel-title">
+        <h3 id="entryTitle">记录食物</h3>
+        <button class="sheet-close" id="closeEntryBtn" type="button" aria-label="关闭">×</button>
+      </div>
+      <p class="draft-line" id="draftHint">低热量 · 1 拳</p>
+      <label class="field-block">
+        <span>食物名称</span>
+        <input id="foodNameInput" type="text" autocomplete="off" placeholder="例如：黄瓜、鸡胸、米饭、苹果">
+      </label>
+      <div class="segment-row category-picker" id="categoryButtons" aria-label="选择类别"></div>
+      <div class="amount-row" id="amountButtons" aria-label="选择拳头数量"></div>
+      <label class="custom-amount">
+        <span>自定义</span>
+        <input id="customAmount" type="number" min="0.1" max="8" step="0.1" inputmode="decimal" aria-label="自定义拳头数量">
+        <em>拳</em>
+      </label>
+      <button class="primary-button" id="addEntryBtn" type="button">加入今天</button>
+    </section>
+  </div>
+
   <nav class="bottom-tabs" aria-label="主导航">
     <button class="tab-button is-active" type="button" data-tab="today">今日</button>
     <button class="tab-button" type="button" data-tab="rules">规则</button>
     <button class="tab-button" type="button" data-tab="records">记录</button>
   </nav>
 
-  <script src="./app.js?v=20260804t2"></script>
+  <script src="./app.js?v=20260804t9"></script>
 </body>
 </html>

@@ -63,6 +63,9 @@ const nodes = {
   amountButtons: document.querySelector("#amountButtons"),
   customAmount: document.querySelector("#customAmount"),
   addEntryBtn: document.querySelector("#addEntryBtn"),
+  openEntryBtn: document.querySelector("#openEntryBtn"),
+  closeEntryBtn: document.querySelector("#closeEntryBtn"),
+  entrySheet: document.querySelector("#entrySheet"),
   entryCountText: document.querySelector("#entryCountText"),
   entryList: document.querySelector("#entryList"),
   completeTodayBtn: document.querySelector("#completeTodayBtn"),
@@ -176,6 +179,10 @@ function formatFists(value) {
   return Number.isInteger(rounded) ? `${rounded} 拳` : `${rounded.toFixed(1)} 拳`;
 }
 
+function formatFistsTight(value) {
+  return formatFists(value).replace(" ", "");
+}
+
 function formatCalories(value) {
   const rounded = roundTenth(value);
   return Number.isInteger(rounded) ? `${rounded} 千卡` : `${rounded.toFixed(1)} 千卡`;
@@ -203,6 +210,17 @@ function categoryUsed(day, categoryId) {
 
 function quotaText(category) {
   return category.limitOnly ? `最多 ${formatFists(category.quota)}` : formatFists(category.quota);
+}
+
+function categoryBalance(category, used) {
+  const remain = roundTenth(category.quota - used);
+  if (remain < 0) return { text: `超${formatFistsTight(Math.abs(remain))}`, tone: "over" };
+  if (remain === 0) return { text: category.limitOnly ? "已到上限" : "已满", tone: "done" };
+  return { text: `${category.limitOnly ? "还可" : "还剩"}${formatFistsTight(remain)}`, tone: "open" };
+}
+
+function quotaTextTight(category) {
+  return category.limitOnly ? `最多${formatFistsTight(category.quota)}` : formatFistsTight(category.quota);
 }
 
 function entryCalories(entry) {
@@ -264,12 +282,14 @@ function renderToday() {
     const categoryTotal = categoryUsed(day, category.id);
     const categoryPercent = Math.min(100, Math.round((categoryTotal / category.quota) * 100));
     const over = categoryTotal > category.quota;
+    const balance = categoryBalance(category, categoryTotal);
     return `
       <article class="category-card ${over ? "over" : ""}">
         <div>
           <strong>${category.label}</strong>
-          <span>${formatFists(categoryTotal)} / ${quotaText(category)}</span>
+          <span>已吃 ${formatFistsTight(categoryTotal)} / ${quotaTextTight(category)}</span>
         </div>
+        <em class="category-balance ${balance.tone}">${balance.text}</em>
         <div class="mini-track"><i style="width:${categoryPercent}%"></i></div>
       </article>
     `;
@@ -295,7 +315,7 @@ function statusSentence(day, remain, isOver) {
     .map((category) => category.label);
   if (day.completed && (isOver || categoryOver.length)) return "今天已保存，但总量或分类已经超过目标。";
   if (day.completed) return "今天已完成，记录已保存在本机。";
-  if (!day.entries.length) return "先输入食物名称，再选择类别和拳头数。";
+  if (!day.entries.length) return "点下方 + 记录食物，开始记录今天吃了几拳。";
   if (isOver) return `总量已经超过 ${formatFists(Math.abs(remain))}，仍可作为真实记录保存。`;
   if (categoryOver.length) return `${categoryOver.join("、")} 已超过目标，后面尽量换到其他类别。`;
   return `还剩 ${formatFists(remain)}，按今天实际吃的继续记录。`;
@@ -305,7 +325,9 @@ function renderEntryList(day) {
   if (!day.entries.length) {
     return `<p class="empty-text">今天还没有记录。</p>`;
   }
-  return day.entries.map((entry) => {
+  const latestEntry = day.entries[day.entries.length - 1];
+  const hiddenCount = Math.max(0, day.entries.length - 1);
+  const entryHtml = [latestEntry].map((entry) => {
     const category = CATEGORY_MAP[entry.category] || CATEGORY_MAP.low;
     return `
       <article class="entry-item">
@@ -317,6 +339,8 @@ function renderEntryList(day) {
       </article>
     `;
   }).join("");
+  const moreText = hiddenCount ? `<p class="more-text">其余 ${hiddenCount} 条已计入今天，第三页看统计。</p>` : "";
+  return entryHtml + moreText;
 }
 
 function renderRules() {
@@ -389,6 +413,7 @@ function addEntry() {
   day.entries.push(entry);
   state.draftName = "";
   saveState();
+  closeEntrySheet();
   renderAll();
 }
 
@@ -421,6 +446,17 @@ function resetToday() {
   renderAll();
 }
 
+function openEntrySheet() {
+  nodes.entrySheet.hidden = false;
+  document.body.classList.add("sheet-open");
+  window.setTimeout(() => nodes.foodNameInput.focus(), 80);
+}
+
+function closeEntrySheet() {
+  nodes.entrySheet.hidden = true;
+  document.body.classList.remove("sheet-open");
+}
+
 document.body.addEventListener("click", (event) => {
   const tabButton = event.target.closest("[data-tab]");
   if (tabButton) {
@@ -447,6 +483,11 @@ document.body.addEventListener("click", (event) => {
   const removeButton = event.target.closest("[data-remove-entry]");
   if (removeButton) {
     removeEntry(removeButton.dataset.removeEntry);
+    return;
+  }
+
+  if (event.target === nodes.entrySheet) {
+    closeEntrySheet();
   }
 });
 
@@ -465,12 +506,18 @@ nodes.customAmount.addEventListener("input", (event) => {
 });
 
 nodes.addEntryBtn.addEventListener("click", addEntry);
+nodes.openEntryBtn.addEventListener("click", openEntrySheet);
+nodes.closeEntryBtn.addEventListener("click", closeEntrySheet);
 nodes.completeTodayBtn.addEventListener("click", completeToday);
 nodes.resetTodayBtn.addEventListener("click", resetToday);
 
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !nodes.entrySheet.hidden) closeEntrySheet();
+});
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js?v=20260804t2").catch(() => {});
+    navigator.serviceWorker.register("./sw.js?v=20260804t9").catch(() => {});
   });
 }
 
