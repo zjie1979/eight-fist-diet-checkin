@@ -6,7 +6,7 @@ const CATEGORIES = [
     id: "low",
     label: "低热量",
     quota: 1,
-    kcalPerFist: 30,
+    kcalPerFist: 75,
     examples: "黄瓜、番茄、蔬菜沙拉、生菜、海带",
     note: "低油低糖，主要用来增加饱腹感。"
   },
@@ -470,7 +470,7 @@ nodes.resetTodayBtn.addEventListener("click", resetToday);
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js?v=20260803t1").catch(() => {});
+    navigator.serviceWorker.register("./sw.js?v=20260804t2").catch(() => {});
   });
 }
 
