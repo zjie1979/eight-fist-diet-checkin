@@ -1,7 +1,7 @@
 {
   "name": "8拳减肥法",
   "short_name": "8拳打卡",
-  "description": "按 1拳低热量、3拳蛋白质、3拳碳水、1拳水果记录每天饮食的打卡 PWA。",
+  "description": "按总量8拳记录每天饮食，零食单独控制、不占碳水进度的打卡 PWA。",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

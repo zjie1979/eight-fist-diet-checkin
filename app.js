@@ -24,15 +24,16 @@ const CATEGORIES = [
     quota: 3,
     kcalPerFist: 180,
     examples: "米饭、面、红薯、玉米、燕麦",
-    note: "其中最多 1 拳可以用零食替代。"
+    note: "正常主食单独记录，不再和零食合并计算。"
   },
   {
     id: "snack",
-    label: "零食",
+    label: "零食可选",
     quota: 1,
+    limitOnly: true,
     kcalPerFist: 150,
     examples: "饼干、蛋糕、薯片、奶茶小份",
-    note: "计入 3 拳碳水额度，不建议超过 1 拳。"
+    note: "单独记录，方便控制嘴馋，不计入碳水进度。"
   },
   {
     id: "fruit",
@@ -195,14 +196,13 @@ function usedFists(day) {
 }
 
 function categoryUsed(day, categoryId) {
-  if (categoryId === "carb") {
-    return roundTenth(day.entries
-      .filter((entry) => entry.category === "carb" || entry.category === "snack")
-      .reduce((sum, entry) => sum + Number(entry.fists || 0), 0));
-  }
   return roundTenth(day.entries
     .filter((entry) => entry.category === categoryId)
     .reduce((sum, entry) => sum + Number(entry.fists || 0), 0));
+}
+
+function quotaText(category) {
+  return category.limitOnly ? `最多 ${formatFists(category.quota)}` : formatFists(category.quota);
 }
 
 function entryCalories(entry) {
@@ -268,7 +268,7 @@ function renderToday() {
       <article class="category-card ${over ? "over" : ""}">
         <div>
           <strong>${category.label}</strong>
-          <span>${formatFists(categoryTotal)} / ${formatFists(category.quota)}</span>
+          <span>${formatFists(categoryTotal)} / ${quotaText(category)}</span>
         </div>
         <div class="mini-track"><i style="width:${categoryPercent}%"></i></div>
       </article>
@@ -322,7 +322,7 @@ function renderEntryList(day) {
 function renderRules() {
   nodes.ruleList.innerHTML = CATEGORIES.map((category) => `
     <article class="rule-row">
-      <strong>${category.label} · ${formatFists(category.quota)}</strong>
+      <strong>${category.label} · ${quotaText(category)}</strong>
       <p>${category.examples}</p>
       <span>${category.note}</span>
     </article>
