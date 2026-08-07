@@ -137,6 +137,7 @@ button {
 .rule-card,
 .history-panel,
 .balance-panel,
+.plan-panel,
 .category-card,
 .stat-card {
   border: 1px solid var(--line);
@@ -150,7 +151,8 @@ button {
 .entry-list-panel,
 .rule-card,
 .history-panel,
-.balance-panel {
+.balance-panel,
+.plan-panel {
   padding: 12px;
   margin-bottom: 10px;
 }
@@ -360,7 +362,8 @@ input:focus {
 
 .segment-button,
 .amount-button,
-.primary-button {
+.primary-button,
+.ghost-button {
   min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -403,6 +406,103 @@ input:focus {
 
 .primary-button:disabled {
   opacity: 0.45;
+}
+
+.ghost-button {
+  background: #fff;
+  color: var(--accent-dark);
+}
+
+.plan-note {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.plan-list {
+  display: grid;
+  gap: 8px;
+}
+
+.plan-item {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdfb;
+}
+
+.plan-item.is-checked {
+  border-color: #c9ded5;
+  background: var(--accent-soft);
+}
+
+.plan-item-head,
+.plan-item-body,
+.plan-actions {
+  display: grid;
+  gap: 8px;
+  align-items: center;
+}
+
+.plan-item-head {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.plan-item-head strong {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.plan-item-head em {
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.plan-tag {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #eef3f1;
+  color: var(--accent-dark);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.plan-item-body {
+  grid-template-columns: minmax(0, 1fr) 72px;
+}
+
+.plan-input {
+  min-height: 42px;
+  font-size: 15px;
+}
+
+.plan-check {
+  min-height: 42px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--accent-dark);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.plan-check.is-checked {
+  background: var(--accent);
+  color: #fff;
+}
+
+.plan-actions {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin-top: 10px;
 }
 
 .today-actions {
@@ -563,7 +663,7 @@ input:focus {
   left: 0;
   z-index: 10;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   width: min(100%, 520px);
   margin: 0 auto;
   padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
@@ -629,7 +729,7 @@ input:focus {
   border-radius: 8px;
   background: transparent;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 900;
 }
 

@@ -1,10 +1,10 @@
-const CACHE_NAME = "eight-fist-diet-checkin-20260804t9";
+const CACHE_NAME = "eight-fist-diet-checkin-20260807t1";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=20260804t9",
-  "./app.js?v=20260804t9",
-  "./manifest.webmanifest?v=20260804t9",
+  "./styles.css?v=20260807t1",
+  "./app.js?v=20260807t1",
+  "./manifest.webmanifest?v=20260807t1",
   "./icon.svg",
   "./icon-180.png",
   "./icon-192.png",

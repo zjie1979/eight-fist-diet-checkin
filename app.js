@@ -1,4 +1,5 @@
 const STORAGE_KEY = "eightFistDietCheckin.v1";
+const RESOURCE_VERSION = "20260807t1";
 const TOTAL_TARGET = 8;
 
 const CATEGORIES = [
@@ -47,7 +48,17 @@ const CATEGORIES = [
 
 const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map((item) => [item.id, item]));
 const AMOUNTS = [0.5, 1, 1.5, 2, 2.5, 3];
-const TABS = ["today", "rules", "records"];
+const TABS = ["today", "plan", "rules", "records"];
+const PLAN_TEMPLATE = [
+  { id: "low-1", category: "low", fists: 1, title: "低热量 1拳", placeholder: "黄瓜、番茄、蔬菜沙拉" },
+  { id: "protein-1", category: "protein", fists: 1, title: "蛋白质 1拳", placeholder: "鸡蛋、鸡胸、鱼虾" },
+  { id: "protein-2", category: "protein", fists: 1, title: "蛋白质 1拳", placeholder: "牛肉、豆腐、虾仁" },
+  { id: "protein-3", category: "protein", fists: 1, title: "蛋白质 1拳", placeholder: "鱼、鸡胸、鸡蛋" },
+  { id: "carb-1", category: "carb", fists: 1, title: "碳水 1拳", placeholder: "米饭、红薯、玉米" },
+  { id: "carb-2", category: "carb", fists: 1, title: "碳水 1拳", placeholder: "燕麦、面、土豆" },
+  { id: "carb-3", category: "carb", fists: 1, title: "碳水 1拳", placeholder: "米饭、玉米、红薯" },
+  { id: "fruit-1", category: "fruit", fists: 1, title: "水果 1拳", placeholder: "苹果、橙子、莓果" }
+];
 
 const nodes = {
   resetTodayBtn: document.querySelector("#resetTodayBtn"),
@@ -69,6 +80,10 @@ const nodes = {
   entryCountText: document.querySelector("#entryCountText"),
   entryList: document.querySelector("#entryList"),
   completeTodayBtn: document.querySelector("#completeTodayBtn"),
+  planProgressText: document.querySelector("#planProgressText"),
+  planList: document.querySelector("#planList"),
+  addSnackPlanBtn: document.querySelector("#addSnackPlanBtn"),
+  resetPlanBtn: document.querySelector("#resetPlanBtn"),
   ruleList: document.querySelector("#ruleList"),
   statsGrid: document.querySelector("#statsGrid"),
   historyCountText: document.querySelector("#historyCountText"),
@@ -112,6 +127,7 @@ function normalizeDays(rawDays) {
     result[date] = {
       date,
       entries,
+      plan: Array.isArray(day.plan) ? day.plan.map(normalizePlanItem).filter(Boolean).slice(0, 12) : [],
       completed: Boolean(day.completed)
     };
   });
@@ -129,7 +145,33 @@ function normalizeEntry(item) {
     time: String(item.time || timeLabel(new Date()))
   };
   if (item.name) entry.name = String(item.name).slice(0, 30);
+  if (item.planId) entry.planId = String(item.planId).slice(0, 40);
   return entry;
+}
+
+function defaultPlan() {
+  return PLAN_TEMPLATE.map((item) => ({
+    ...item,
+    name: "",
+    checked: false,
+    entryId: ""
+  }));
+}
+
+function normalizePlanItem(item) {
+  if (!item || typeof item !== "object") return null;
+  const category = CATEGORY_MAP[item.category] ? item.category : "low";
+  const fists = validAmount(item.fists) ? Number(item.fists) : 1;
+  return {
+    id: String(item.id || `${category}-${Date.now()}`).slice(0, 40),
+    category,
+    fists,
+    title: String(item.title || `${CATEGORY_MAP[category].label} ${formatFistsTight(fists)}`).slice(0, 20),
+    placeholder: String(item.placeholder || CATEGORY_MAP[category].examples).slice(0, 40),
+    name: String(item.name || "").slice(0, 30),
+    checked: Boolean(item.checked),
+    entryId: String(item.entryId || "").slice(0, 40)
+  };
 }
 
 function saveState() {
@@ -159,8 +201,12 @@ function getToday() {
     state.days[key] = {
       date: key,
       entries: [],
+      plan: defaultPlan(),
       completed: false
     };
+  }
+  if (!Array.isArray(state.days[key].plan) || !state.days[key].plan.length) {
+    state.days[key].plan = defaultPlan();
   }
   return state.days[key];
 }
@@ -249,6 +295,7 @@ function renderAll() {
     button.classList.toggle("is-active", button.dataset.tab === state.tab);
   });
   renderToday();
+  renderPlan();
   renderRules();
   renderRecords();
 }
@@ -343,6 +390,54 @@ function renderEntryList(day) {
   return entryHtml + moreText;
 }
 
+function syncPlanLinks(day) {
+  const entryIds = new Set(day.entries.map((entry) => entry.id));
+  day.plan.forEach((item) => {
+    if (item.checked && (!item.entryId || !entryIds.has(item.entryId))) {
+      item.checked = false;
+      item.entryId = "";
+    }
+  });
+}
+
+function renderPlan() {
+  const day = getToday();
+  syncPlanLinks(day);
+  const checkedFists = roundTenth(day.plan
+    .filter((item) => item.checked)
+    .reduce((sum, item) => sum + Number(item.fists || 0), 0));
+  nodes.planProgressText.textContent = `${formatFistsTight(checkedFists)}/8 已打卡`;
+  nodes.planList.innerHTML = day.plan.map(renderPlanItem).join("");
+}
+
+function renderPlanItem(item) {
+  const category = CATEGORY_MAP[item.category] || CATEGORY_MAP.low;
+  const checked = Boolean(item.checked);
+  return `
+    <article class="plan-item ${checked ? "is-checked" : ""}">
+      <div class="plan-item-head">
+        <span class="plan-tag">${category.label}</span>
+        <strong>${escapeHtml(item.title)}</strong>
+        <em>${formatFistsTight(item.fists)}</em>
+      </div>
+      <div class="plan-item-body">
+        <input
+          class="plan-input"
+          type="text"
+          autocomplete="off"
+          data-plan-name="${escapeHtml(item.id)}"
+          value="${escapeHtml(item.name)}"
+          placeholder="${escapeHtml(item.placeholder)}"
+          aria-label="${escapeHtml(item.title)}计划吃什么"
+        >
+        <button class="plan-check ${checked ? "is-checked" : ""}" type="button" data-plan-toggle="${escapeHtml(item.id)}">
+          ${checked ? "已打卡" : "打卡"}
+        </button>
+      </div>
+    </article>
+  `;
+}
+
 function renderRules() {
   nodes.ruleList.innerHTML = CATEGORIES.map((category) => `
     <article class="rule-row">
@@ -417,9 +512,82 @@ function addEntry() {
   renderAll();
 }
 
+function updatePlanName(id, value) {
+  const day = getToday();
+  const item = day.plan.find((planItem) => planItem.id === id);
+  if (!item) return;
+  item.name = value.slice(0, 30);
+  if (item.checked && item.entryId) {
+    const linkedEntry = day.entries.find((entry) => entry.id === item.entryId);
+    if (linkedEntry) linkedEntry.name = item.name || item.title;
+  }
+  saveState();
+}
+
+function togglePlanItem(id) {
+  const day = getToday();
+  const item = day.plan.find((planItem) => planItem.id === id);
+  if (!item) return;
+  if (item.checked) {
+    day.entries = day.entries.filter((entry) => entry.id !== item.entryId);
+    item.checked = false;
+    item.entryId = "";
+    day.completed = false;
+  } else {
+    const entry = {
+      id: String(Date.now()),
+      category: item.category,
+      fists: Number(item.fists),
+      time: timeLabel(new Date()),
+      name: item.name.trim() || item.title,
+      planId: item.id
+    };
+    day.entries.push(entry);
+    item.checked = true;
+    item.entryId = entry.id;
+    day.completed = false;
+  }
+  saveState();
+  renderAll();
+}
+
+function addSnackPlan() {
+  const day = getToday();
+  if (day.plan.some((item) => item.category === "snack")) return;
+  day.plan.push({
+    id: `snack-${Date.now()}`,
+    category: "snack",
+    fists: 1,
+    title: "零食可选 1拳",
+    placeholder: "饼干、蛋糕、奶茶小份",
+    name: "",
+    checked: false,
+    entryId: ""
+  });
+  saveState();
+  renderAll();
+}
+
+function resetPlan() {
+  const day = getToday();
+  if (!window.confirm("确定重置今天的饮食计划吗？已通过计划打卡生成的记录也会同步删除。")) return;
+  const planEntryIds = new Set(day.plan.map((item) => item.entryId).filter(Boolean));
+  day.entries = day.entries.filter((entry) => !planEntryIds.has(entry.id));
+  day.plan = defaultPlan();
+  day.completed = false;
+  saveState();
+  renderAll();
+}
+
 function removeEntry(id) {
   const day = getToday();
   day.entries = day.entries.filter((entry) => entry.id !== id);
+  day.plan.forEach((item) => {
+    if (item.entryId === id) {
+      item.checked = false;
+      item.entryId = "";
+    }
+  });
   if (!day.entries.length) day.completed = false;
   saveState();
   renderAll();
@@ -440,6 +608,7 @@ function resetToday() {
   state.days[todayKey()] = {
     date: todayKey(),
     entries: [],
+    plan: defaultPlan(),
     completed: false
   };
   saveState();
@@ -486,8 +655,21 @@ document.body.addEventListener("click", (event) => {
     return;
   }
 
+  const planToggle = event.target.closest("[data-plan-toggle]");
+  if (planToggle) {
+    togglePlanItem(planToggle.dataset.planToggle);
+    return;
+  }
+
   if (event.target === nodes.entrySheet) {
     closeEntrySheet();
+  }
+});
+
+document.body.addEventListener("input", (event) => {
+  const planInput = event.target.closest("[data-plan-name]");
+  if (planInput) {
+    updatePlanName(planInput.dataset.planName, planInput.value);
   }
 });
 
@@ -510,6 +692,8 @@ nodes.openEntryBtn.addEventListener("click", openEntrySheet);
 nodes.closeEntryBtn.addEventListener("click", closeEntrySheet);
 nodes.completeTodayBtn.addEventListener("click", completeToday);
 nodes.resetTodayBtn.addEventListener("click", resetToday);
+nodes.addSnackPlanBtn.addEventListener("click", addSnackPlan);
+nodes.resetPlanBtn.addEventListener("click", resetPlan);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !nodes.entrySheet.hidden) closeEntrySheet();
@@ -517,7 +701,7 @@ document.addEventListener("keydown", (event) => {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js?v=20260804t9").catch(() => {});
+    navigator.serviceWorker.register(`./sw.js?v=${RESOURCE_VERSION}`).catch(() => {});
   });
 }
 

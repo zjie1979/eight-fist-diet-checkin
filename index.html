@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="8拳减肥法">
   <title>8拳减肥法</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=20260804t9">
+  <link rel="manifest" href="./manifest.webmanifest?v=20260807t1">
   <link rel="apple-touch-icon" href="./icon-180.png">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=20260804t9">
+  <link rel="stylesheet" href="./styles.css?v=20260807t1">
 </head>
 <body>
   <main class="app-shell">
@@ -76,10 +76,32 @@
       </div>
     </section>
 
-    <section class="view" id="viewRules" aria-labelledby="rulesTitle">
+    <section class="view" id="viewPlan" aria-labelledby="planTitle">
       <div class="section-title">
         <div>
           <span>第二页</span>
+          <h2 id="planTitle">饮食计划</h2>
+        </div>
+      </div>
+
+      <section class="plan-panel" aria-labelledby="planPanelTitle">
+        <div class="panel-title">
+          <h3 id="planPanelTitle">今天准备怎么吃</h3>
+          <span id="planProgressText">0/8 已打卡</span>
+        </div>
+        <p class="plan-note">先把一天想吃的写下来。吃完点打卡，会自动进入第一页“今天记录”。</p>
+        <div class="plan-list" id="planList"></div>
+        <div class="plan-actions">
+          <button class="ghost-button" id="addSnackPlanBtn" type="button">+ 加一个零食计划</button>
+          <button class="ghost-button" id="resetPlanBtn" type="button">重置计划</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="viewRules" aria-labelledby="rulesTitle">
+      <div class="section-title">
+        <div>
+          <span>第三页</span>
           <h2 id="rulesTitle">8拳规则</h2>
         </div>
       </div>
@@ -98,7 +120,7 @@
     <section class="view" id="viewRecords" aria-labelledby="recordsTitle">
       <div class="section-title">
         <div>
-          <span>第三页</span>
+          <span>第四页</span>
           <h2 id="recordsTitle">记录统计</h2>
         </div>
       </div>
@@ -138,10 +160,11 @@
 
   <nav class="bottom-tabs" aria-label="主导航">
     <button class="tab-button is-active" type="button" data-tab="today">今日</button>
+    <button class="tab-button" type="button" data-tab="plan">计划</button>
     <button class="tab-button" type="button" data-tab="rules">规则</button>
     <button class="tab-button" type="button" data-tab="records">记录</button>
   </nav>
 
-  <script src="./app.js?v=20260804t9"></script>
+  <script src="./app.js?v=20260807t1"></script>
 </body>
 </html>
